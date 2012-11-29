@@ -217,6 +217,8 @@ public final class ImageLoader {
      * Recent errors encountered when loading bitmaps.
      */
     private final LruCache<String, ImageError> mErrors;
+    
+    private String mCookie;
 
     /**
      * Creates an {@link ImageLoader}.
@@ -381,6 +383,10 @@ public final class ImageLoader {
      */
     public ImageLoader(URLStreamHandlerFactory factory) throws IOException {
         this(factory, null, null, DEFAULT_CACHE_SIZE, null);
+    }
+    
+    public void setCookie(String cookie){
+        mCookie = cookie;
     }
 
     public final String getCacheDebugStats() {
@@ -768,6 +774,9 @@ public final class ImageLoader {
 
         private Bitmap loadImage(URL url) throws IOException {
             URLConnection connection = url.openConnection();
+            if (mCookie != null){
+                connection.setRequestProperty("Cookie", mCookie);    
+            }            
             return (Bitmap) mBitmapContentHandler.getContent(connection);
         }
 
@@ -836,6 +845,9 @@ public final class ImageLoader {
                     if (mPrefetchContentHandler != null) {
                         // Cache the URL without loading a Bitmap into memory.
                         URLConnection connection = url.openConnection();
+                        if (mCookie != null){
+                            connection.setRequestProperty("Cookie", mCookie);    
+                        }  
                         mPrefetchContentHandler.getContent(connection);
                     }
                     mBitmap = null;
